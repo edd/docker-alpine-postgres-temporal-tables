@@ -7,7 +7,6 @@ This repo builds a docker image that accepts the same env vars as the
 with a much smaller footprint, and the temporal_tables extension installed. It
 achieves that by basing itself off the tiny official alpine linux image.
 
-
 # Build
 
 ```bash
