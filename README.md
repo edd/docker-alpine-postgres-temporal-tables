@@ -1,5 +1,7 @@
 # PostgreSQL + [temporal_tables](https://github.com/arkhipov/temporal_tables) docker image based on Alpine Linux
 
+[![Docker Automated build](https://img.shields.io/docker/automated/eddhannay/alpine-postgres-temporal-tables.svg?maxAge=2592000)](https://hub.docker.com/r/eddhannay/alpine-postgres-temporal-tables/)
+
 Forked from [kiasaki/docker-alpine-postgres](https://github.com/kiasaki/docker-alpine-postgres).
 
 This repo builds a docker image that accepts the same env vars as the
