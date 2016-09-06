@@ -4,6 +4,19 @@ chown -R postgres "$PGDATA"
 if [ -z "$(ls -A "$PGDATA")" ]; then
     gosu postgres initdb
     sed -ri "s/^#(listen_addresses\s*=\s*)\S+/\1'*'/" "$PGDATA"/postgresql.conf
+    mkdir -p "$PGDATA"/ssl && \
+    cd "$PGDATA"/ssl && \
+    openssl req -new -newkey rsa:1024 -days 365000 -nodes -x509 -keyout server.key -subj "/CN=PostgreSQL" -out server.crt
+    chmod 600 server.*
+    chown postgres:postgres server.*
+    chown -R postgres:postgres "$PGDATA"../ssl
+
+    echo "local all all   peer" >> "$PGDATA"/pg_hba.conf
+    echo "hostssl   all           all   0.0.0.0/0   md5" >> "$PGDATA"/pg_hba.conf
+    echo "ssl = on" >> "$PGDATA"/postgresql.conf
+    echo "ssl_key_file = '$PGDATA/ssl/server.key'" >> "$PGDATA"/postgresql.conf
+    echo "ssl_ciphers = 'DEFAULT:!LOW:!EXP:!MD5:@STRENGTH'" >> "$PGDATA"/postgresql.conf
+    echo "ssl_cert_file = '$PGDATA/ssl/server.crt'" >> "$PGDATA"/postgresql.conf
 
     : ${POSTGRES_USER:="postgres"}
     : ${POSTGRES_DB:=$POSTGRES_USER}
@@ -54,8 +67,6 @@ if [ -z "$(ls -A "$PGDATA")" ]; then
     done
 
     gosu postgres pg_ctl -D "$PGDATA" -m fast -w stop
-
-    { echo; echo "host all all 0.0.0.0/0 $authMethod"; } >> "$PGDATA"/pg_hba.conf
 fi
 
 exec gosu postgres "$@"
